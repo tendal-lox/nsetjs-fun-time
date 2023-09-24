@@ -1,16 +1,15 @@
 import {
-  ClassSerializerInterceptor,
   HttpException,
   HttpStatus,
   Injectable,
-  UseInterceptors,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { CreateUserDto } from 'src/dto/user.dto';
 import { User } from 'src/entities/user.entity';
 import { SerializedUser } from 'src/type/userType';
-import { Repository } from 'typeorm';
+import { MetadataAlreadyExistsError, MetadataWithSuchNameAlreadyExistsError, Repository } from "typeorm";
 
 @Injectable()
 export class UserService {
@@ -19,13 +18,17 @@ export class UserService {
   async addUser(createUserDto: CreateUserDto) {
     const { username, email, password } = createUserDto;
 
+    const userDbCheck = await this.findUserByUsername(username);
+    if (userDbCheck) throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+
     try {
-      const useradder = this.userRepo.create({
+      const userAdder = this.userRepo.create({
         username: username,
         email: email,
         password: password,
       });
-      return this.userRepo.save(useradder);
+      const userObject = this.userRepo.save(userAdder);
+      return plainToClass(SerializedUser, userObject);
     } catch (err) {
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
@@ -40,6 +43,6 @@ export class UserService {
   }
 
   async findUserByUsername(username: string) {
-    return this.userRepo.findOneOrFail({where: {username}})
+    return this.userRepo.findOneOrFail({ where: { username } });
   }
 }

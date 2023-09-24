@@ -9,6 +9,6 @@ export class SerializedUser {
   password: string;
 
   constructor(partial: Partial<SerializedUser>) {
-      Object.assign(this, partial)
+    Object.assign(this, partial);
   }
 }
