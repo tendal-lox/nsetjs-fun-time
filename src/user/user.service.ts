@@ -9,7 +9,7 @@ import { plainToClass } from 'class-transformer';
 import { CreateUserDto } from 'src/dto/user.dto';
 import { User } from 'src/entities/user.entity';
 import { SerializedUser } from 'src/type/userType';
-import { MetadataAlreadyExistsError, MetadataWithSuchNameAlreadyExistsError, Repository } from "typeorm";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class UserService {
@@ -43,6 +43,12 @@ export class UserService {
   }
 
   async findUserByUsername(username: string) {
-    return this.userRepo.findOneOrFail({ where: { username } });
+    return this.userRepo.findOne({ where: { username } });
+  }
+
+  async findUserByID(id: string) {
+    const foundedUserById = this.userRepo.findOne({ where: { id: id } });
+    if (!foundedUserById) throw new NotFoundException(`User not found by _id: '${id}'.`)
+    return plainToClass(SerializedUser, foundedUserById)
   }
 }

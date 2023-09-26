@@ -11,7 +11,7 @@ const config: MysqlConnectionOptions = {
   host: 'localhost',
   port: 3306,
   username: 'root',
-  password: 'password',
+  password: 'mysql',
   entities: [Imployee, ContactInfo, Task, Meeting, User],
   synchronize: true,
   logging: true,

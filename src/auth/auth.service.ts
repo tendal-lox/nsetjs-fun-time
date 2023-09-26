@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { plainToClass } from 'class-transformer';
 import { SerializedUser } from 'src/type/userType';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -24,18 +25,23 @@ export class AuthService {
       return plainToClass(SerializedUser, userData);
   }
 
-  async login(userRepo: User) {
+  async login(userRepo: User,  response: Response) {
     const payload = {
       username: userRepo.username,
+      role: userRepo.role,
       sub: {
         email: userRepo.email,
       },
     };
-    return {
-      ...userRepo,
-      accessToken: this.jwtService.sign(payload),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
-    };
+
+    const accessToken = this.jwtService.sign(payload)
+    // return {
+    //   ...userRepo,
+    //   accessToken: this.jwtService.sign(payload),
+    //   refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
+    // };
+
+    response.cookie('Authentication', accessToken, {httpOnly: true})
   }
 
   async refreshToken(userRepo: User) {

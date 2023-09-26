@@ -6,6 +6,9 @@ export class SerializedUser {
   email: string;
 
   @Exclude()
+  role: string
+
+  @Exclude()
   password: string;
 
   constructor(partial: Partial<SerializedUser>) {

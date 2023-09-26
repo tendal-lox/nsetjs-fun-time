@@ -23,6 +23,9 @@ export class User {
   @IsNotEmpty()
   password: string;
 
+  @Column({default: 'user'})
+  role: string
+
   @BeforeInsert()
   async hashPass() {
     this.password = await bcrypt.hash(this.password, 10);
